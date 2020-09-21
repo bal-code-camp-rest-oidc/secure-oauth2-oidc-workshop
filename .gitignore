@@ -31,3 +31,4 @@ hs_err_pid*
 out/
 bin/
 .vscode/
+.DS_Store
