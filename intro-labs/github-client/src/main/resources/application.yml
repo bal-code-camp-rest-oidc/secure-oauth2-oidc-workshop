@@ -6,8 +6,8 @@ spring:
       client:
         registration:
           github:
-            client-id: <client_id>
-            client-secret: <client_secret>
+            client-id: af73a9da1cbda378e51f
+            client-secret: d20bcd63402bb90af1cb2c74fac1241a5563b02e
             scope:
               - read:user
               - notifications
