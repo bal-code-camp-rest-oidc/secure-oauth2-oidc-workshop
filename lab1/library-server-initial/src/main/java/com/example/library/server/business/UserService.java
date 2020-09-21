@@ -53,6 +53,7 @@ public class UserService {
     return userRepository.findOneByIdentifier(userIdentifier);
   }
 
+  //@PreAuthorize("hasRole('LIBRARY_ADMIN') || hasAuthority('SCOPE_library_admin')")
   @PreAuthorize("hasRole('LIBRARY_ADMIN')")
   public List<User> findAll() {
     return userRepository.findAll();
