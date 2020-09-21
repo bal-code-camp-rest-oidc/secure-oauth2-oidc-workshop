@@ -12,7 +12,7 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
       new OAuth2Error("invalid_token", "The required audience 'library-service' is missing", null);
 
   public OAuth2TokenValidatorResult validate(Jwt jwt) {
-    if (jwt.getAudience().contains("library-service")) {
+    if (jwt.getAudience().contains("library-client")) {
       return OAuth2TokenValidatorResult.success();
     } else {
       return OAuth2TokenValidatorResult.failure(error);

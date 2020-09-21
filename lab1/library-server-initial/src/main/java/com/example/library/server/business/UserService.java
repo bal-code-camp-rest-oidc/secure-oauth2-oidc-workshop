@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.IdGenerator;
 
+import javax.annotation.security.RolesAllowed;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -54,7 +55,8 @@ public class UserService {
   }
 
   //@PreAuthorize("hasRole('LIBRARY_ADMIN') || hasAuthority('SCOPE_library_admin')")
-  @PreAuthorize("hasRole('LIBRARY_ADMIN')")
+//  @PreAuthorize("hasRole('LIBRARY_ADMIN')")
+  @RolesAllowed("LIBRARY_ADMIN")
   public List<User> findAll() {
     return userRepository.findAll();
   }
