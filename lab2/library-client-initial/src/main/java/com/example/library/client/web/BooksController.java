@@ -1,10 +1,11 @@
 package com.example.library.client.web;
 
+import net.minidev.json.JSONArray;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,13 +30,13 @@ public class BooksController {
     this.webClient = webClient;
   }
 
-  @GetMapping("/")
-  Mono<String> index(@AuthenticationPrincipal User user, Model model) {
 
-    model.addAttribute("fullname", user.getUsername());
+  @GetMapping("/")
+  Mono<String> index(@AuthenticationPrincipal OidcUser oidcUser, Model model) {
+    model.addAttribute("fullname", oidcUser.getName());
     model.addAttribute(
-        "isCurator",
-        user.getAuthorities().stream().anyMatch(ga -> ga.getAuthority().equals("library_curator")));
+            "isCurator",
+            ((JSONArray) oidcUser.getClaim("groups")).get(0).equals("library_curator"));
     return webClient
         .get()
         .uri(libraryServer + "/books")

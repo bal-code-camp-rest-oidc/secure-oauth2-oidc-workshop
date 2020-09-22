@@ -9,8 +9,19 @@ spring:
   thymeleaf:
     cache: false
   security:
-    user:
-      password: secret
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: 'library-client-pkce'
+            authorizationGrantType: authorization_code
+            redirect-uri: '{baseUrl}/login/oauth2/code/{registrationId}'
+            client-authentication-method: none
+            scope: openid
+        provider:
+          keycloak:
+            issuerUri: http://localhost:8080/auth/realms/workshop
+            user-name-attribute: name
 
 logging:
   level:

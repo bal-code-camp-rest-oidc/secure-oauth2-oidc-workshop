@@ -1,5 +1,7 @@
 package com.example.library.client.web;
 
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -87,13 +89,13 @@ public class BookResource {
     }
   }
 
-  public boolean returnBookAllowed(org.springframework.security.core.userdetails.User user) {
+  public boolean returnBookAllowed(OidcUser user) {
     if (!isBorrowed()) {
       return false;
     }
 
     if (user != null) {
-      return borrowedBy != null && borrowedBy.getEmail().equals(user.getUsername());
+      return borrowedBy != null && borrowedBy.getEmail().equals(user.getEmail());
     } else {
       // Always fail secure
       return false;
