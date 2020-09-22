@@ -22,10 +22,24 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class BatchJobConfiguration {
 
+  /**
+   * Provides a factory used to to create a batch job.
+   */
   private final JobBuilderFactory jobBuilderFactory;
+
+  /**
+   * Provides a factory used to to create a step within a batch job.
+   */
   private final StepBuilderFactory stepBuilderFactory;
+
+  /**
+   * Provides a web client we us eto access the server.
+   */
   private final WebClient webClient;
 
+  /**
+   * Provides the configured path of the library server as configured in the application.yml.
+   */
   @Value("${library.server}")
   private String libraryServer;
 
