@@ -6,6 +6,8 @@ server:
     include-stacktrace: never
 
 spring:
+  banner:
+    location: classpath:/cc-banner.txt
   thymeleaf:
     cache: false
   security:
