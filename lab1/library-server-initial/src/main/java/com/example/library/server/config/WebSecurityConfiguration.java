@@ -33,10 +33,24 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
+    /**
+     * Provides injected properties for OAUTH2.
+     */
     private final OAuth2ResourceServerProperties oAuth2ResourceServerProperties;
 
+    /**
+     * Provides teh service we use to map existing users to users specified in teh JWT token to verify within
+     * authentication.
+     */
     private final LibraryUserDetailsService libraryUserDetailsService;
 
+    /**
+     * Default constructor called by spring boot security.
+     *
+     * @param oAuth2ResourceServerProperties injected properties for OAUTH2
+     * @param libraryUserDetailsService      teh service we use to map existing users to users specified in teh JWT token to verify within
+     *                                       authentication.
+     */
     public WebSecurityConfiguration(OAuth2ResourceServerProperties oAuth2ResourceServerProperties,
                                     LibraryUserDetailsService libraryUserDetailsService) {
         this.oAuth2ResourceServerProperties = oAuth2ResourceServerProperties;
@@ -45,6 +59,10 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
+        //we set sessions to stateless
+        //disable cross site request forgery (OWASP) (debugging purposes)
+        //and authenticate all requests fully using oauth2
         http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
@@ -59,34 +77,55 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .jwt();
     }
 
+    /**
+     * Provides an injected decoder for JWT tokens.
+     *
+     * @return the initialized JWT token checking issuer and audience.
+     */
     @Bean
     JwtDecoder jwtDecoder() {
+        //create a default decoder
         NimbusJwtDecoder jwtDecoder =
                 NimbusJwtDecoder.withJwkSetUri(oAuth2ResourceServerProperties.getJwt().getJwkSetUri())
                         .build();
 
-        OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator();
-        OAuth2TokenValidator<Jwt> withIssuer =
-                JwtValidators.createDefaultWithIssuer(
-                        oAuth2ResourceServerProperties.getJwt().getIssuerUri());
-        OAuth2TokenValidator<Jwt> withAudience =
-                new DelegatingOAuth2TokenValidator<Jwt>(withIssuer, audienceValidator);
-
-        jwtDecoder.setJwtValidator(withAudience);
+        //set validator for issuer and audience
+        OAuth2TokenValidator<Jwt> issuerAudienceValidator =
+                new DelegatingOAuth2TokenValidator<Jwt>(
+                        JwtValidators.createDefaultWithIssuer(
+                                oAuth2ResourceServerProperties.getJwt().getIssuerUri()), new AudienceValidator());
+        jwtDecoder.setJwtValidator(issuerAudienceValidator);
 
         return jwtDecoder;
     }
 
+    /**
+     * Provides an injected converter for specified user (by eMail) in the JWT token to a user in our user service.
+     *
+     * @return the converter ready to be used.
+     */
     @Bean
     LibraryUserJwtAuthenticationConverter libraryUserJwtAuthenticationConverter() {
         return new LibraryUserJwtAuthenticationConverter(libraryUserDetailsService);
     }
 
+    /**
+     * Provides a password encoder - using JWT no longer used but kept for backward compatibility (and not having to
+     * refactor code completely).
+     *
+     * @return the password encoder, currently not used.
+     */
     @Bean
     PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
+    /**
+     * Provides an injected configuration source we use for Cross-Origin Resource Sharing (needed to be whitelisted esp.
+     * for REST based systems.
+     *
+     * @return the CORS configuration source.
+     */
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
