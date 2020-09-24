@@ -18,6 +18,17 @@ jobs:
           java-version: ${{ matrix.java }}
       - name: Build with Gradle
         run: ./lab1/library-server-complete/gradlew bootBuildImage
+      - uses: actions/checkout@v1 # may be actions/checkout@v2 now
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Get the version
+        id: vars
+        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
+      - name: Push the tagged Docker image
+        run: docker push luechtdiode/oidc-ws-library-server:${{ env.RELEASE_VERSION }}
+      - name: Push the latest Docker image
+        run: docker push luechtdiode/oidc-ws-library-server:latest
+
 #      - name: Set up QEMU
 #        uses: docker/setup-qemu-action@v1
 #      - name: Set up Docker Buildx
@@ -27,14 +38,14 @@ jobs:
 #        with:
 #          username: ${{ secrets.DOCKERHUB_USERNAME }}
 #          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - uses: actions/checkout@master
-      - name: Publish to Registry
-        uses: elgohr/Publish-Docker-Github-Action@master
-        with:
-          name: luechtdiode/oidc-ws-library-server
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          tags: "latest,${{ env.RELEASE_VERSION }}"
+#      - uses: actions/checkout@master
+#      - name: Publish to Registry
+#        uses: elgohr/Publish-Docker-Github-Action@master
+#        with:
+#          name: luechtdiode/oidc-ws-library-server
+#          username: ${{ secrets.DOCKERHUB_USERNAME }}
+#          password: ${{ secrets.DOCKERHUB_TOKEN }}
+#          tags: "latest,${{ env.RELEASE_VERSION }}"
 #      - name: Build and push
 #        id: docker_build
 #        uses: docker/build-push-action@v2
