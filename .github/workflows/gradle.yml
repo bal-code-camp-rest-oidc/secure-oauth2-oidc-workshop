@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         # test against latest update of each major Java version, as well as specific updates of LTS versions:
-        java: [ 8, 11, 11.0.3, 11.0.4, 11.0.5, 14 ]
+        java: [ 8 ]
     steps:
       - uses: actions/checkout@v1
       - name: Set up JDK
@@ -17,4 +17,30 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./lab1/library-server-complete/gradlew bootBuildImage
+#      - name: Set up QEMU
+#        uses: docker/setup-qemu-action@v1
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v1
+#      - name: Login to DockerHub
+#        uses: docker/login-action@v1
+#        with:
+#          username: ${{ secrets.DOCKERHUB_USERNAME }}
+#          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: actions/checkout@master
+      - name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: luechtdiode/oidc-ws-library-server
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          tags: "latest,${{ env.RELEASE_VERSION }}"
+#      - name: Build and push
+#        id: docker_build
+#        uses: docker/build-push-action@v2
+#        with:
+#          push: true
+#          tags: luechtdiode/oidc-ws-library-server:latest
+#          tag_with_ref: true
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}

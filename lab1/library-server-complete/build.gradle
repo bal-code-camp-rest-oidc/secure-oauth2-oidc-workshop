@@ -23,6 +23,10 @@ configurations {
     }
 }
 
+bootBuildImage{
+    imageName='luechtdiode/oidc-ws-library-server'
+}
+
 repositories {
     mavenCentral()
     maven { url 'https://repo.spring.io/milestone' }
