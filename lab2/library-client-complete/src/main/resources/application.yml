@@ -13,14 +13,14 @@ spring:
       client:
         registration:
           keycloak:
-            client-id: 'library-client-pkce'
+            client-id: ${CLIENT_ID}
             authorizationGrantType: authorization_code
             redirect-uri: '{baseUrl}/login/oauth2/code/{registrationId}'
             client-authentication-method: none
             scope: openid
         provider:
           keycloak:
-            issuerUri: http://localhost:8080/auth/realms/workshop
+            issuerUri: ${ISSUER_URI}
             user-name-attribute: name
 
 logging:
@@ -31,4 +31,4 @@ logging:
         web: info
 
 library:
-  server: http://localhost:9091/library-server
+  server: ${SERVER_URL}

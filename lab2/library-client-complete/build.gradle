@@ -25,6 +25,10 @@ test {
     useJUnitPlatform()
 }
 
+bootBuildImage{
+    imageName='luechtdiode/oidc-ws-library-client'
+}
+
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-actuator')
     implementation('org.springframework.boot:spring-boot-starter-oauth2-client')

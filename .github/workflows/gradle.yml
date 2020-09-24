@@ -3,8 +3,7 @@ name: Java CI
 on: [push]
 
 jobs:
-  build:
-
+  build-server:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -30,3 +29,30 @@ jobs:
         run: docker push luechtdiode/oidc-ws-library-server:${{steps.vars.outputs.tag}}
       - name: Push the latest Docker image
         run: docker push luechtdiode/oidc-ws-library-server:latest
+
+  build-client:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # test against latest update of each major Java version, as well as specific updates of LTS versions:
+        java: [ 8 ]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+      - name: Build with Gradle
+        run: cd ./lab2/library-client-complete && ./gradlew bootBuildImage && cd ../..
+      - uses: actions/checkout@v1
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Get the version
+        id: vars
+        run: echo ::set-output name=tag::$(echo ${GITHUB_SHA})
+      - name: Tag image
+        run: docker image tag luechtdiode/oidc-ws-library-client:latest luechtdiode/oidc-ws-library-client:${{steps.vars.outputs.tag}}
+      - name: Push the tagged Docker image
+        run: docker push luechtdiode/oidc-ws-library-client:${{steps.vars.outputs.tag}}
+      - name: Push the latest Docker image
+        run: docker push luechtdiode/oidc-ws-library-client:latest
